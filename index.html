@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+	<head>
+		<title>ZStd test</title>
+		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+	</head>
+	<script async src="./zstd.js"></script>
+	<body>
+	<p>Open the DevTools console to see ZStd output.</p>
+		<pre class="prettyprint" style="border:0"><script style="display:block;white-space:pre;font-family:monospace;">
+var tick = function() {
+	if (window.ZStd) {
+		window.ZStd().then(function(ZS){ testZStd(ZS) });
+	} else {
+		setTimeout(tick, 10);
+	}
+};
+tick();
+
+function testZStd(ZStd) {
+	console.log('ZStd loaded OK');
+
+	var rawSize = 500000;
+
+	var compressionLevel = 1;
+
+
+	// Compresssion and decompression of known-size data.
+
+	console.log("%cSimple API compression and decompression", "color: #4A8; font-family:sans-serif; font-size: 20px");
+
+	var rawPtr = ZStd._malloc(rawSize);
+	var rawU8 = new Uint8Array(ZStd.HEAPU8.buffer, rawPtr, rawSize);
+	for (var i=Math.ceil(rawU8.length/2); i<rawU8.length; i++) {
+		rawU8[i] = i & 0xff;
+	}
+	rawU8[0] = 1;
+	rawU8[1] = 1;
+	for (var i=2; i<rawU8.length/2; i++) {
+		rawU8[i] = (rawU8[(i/Math.SQRT2)|0] + rawU8[i-1]) & 0xff;
+	}
+
+	console.log("Raw data:", rawU8);
+
+	console.time("Compression");
+	var compressedPtr = ZStd._malloc(rawSize);
+	var compressedSize = ZStd._ZStdCompress(compressedPtr, rawSize, rawPtr, rawSize, compressionLevel);
+	var compressedU8 = new Uint8Array(ZStd.HEAPU8.buffer, compressedPtr, compressedSize);
+	console.timeEnd("Compression");
+
+	console.log("Compressed " + rawSize + " bytes to " + compressedSize + " bytes. ");
+	console.log("compressedPtr: %d, compressedSize: %d, compressedU8:", compressedPtr, compressedSize, compressedU8);
+
+	console.time("Decompression");
+	var decompressedPtr = ZStd._malloc(rawSize);
+	var decompressedSize = ZStd._ZStdDecompress(decompressedPtr, rawSize, compressedPtr, compressedSize);
+	console.timeEnd("Decompression");
+
+	console.log("Decompressed " + compressedSize + " bytes to " + decompressedSize + " bytes.");
+
+	if (decompressedSize !== rawSize) {
+		throw("ERROR: Decompressed size is different from raw size.");
+	}
+
+	var decompressedU8 = new Uint8Array(ZStd.HEAPU8.buffer, decompressedPtr, decompressedSize);
+	console.log("Decompressed data:", decompressedU8);
+
+	for (var i=0; i<decompressedU8.length; i++) {
+		if (decompressedU8[i] !== rawU8[i]) {
+			throw("ERROR: Decompressed value differs from raw at " + i + ", " + decompressedU8[i] + " !== " + rawU8[i]);
+		}
+	}
+
+	console.log("Compression roundtrip completed successfully.")
+
+
+	// Streaming compression
+
+	console.log("%cStreaming compression", "color: #4A8; font-family:sans-serif; font-size: 20px");
+	console.time("Stream compression");
+
+	var compressionBuffersPtr = ZStd._ZStdCompressStreamStart(compressionLevel) / 4;
+	var buffInSize = ZStd.HEAPU32[compressionBuffersPtr];
+	var buffInPtr = ZStd.HEAPU32[compressionBuffersPtr+1];
+	var buffOutSize = ZStd.HEAPU32[compressionBuffersPtr+2];
+	var buffOutPtr = ZStd.HEAPU32[compressionBuffersPtr+3];
+
+	console.log('buffInSize: %d buffInPtr: %d buffOutSize: %d buffOutPtr: %d', buffInSize, buffInPtr, buffOutSize, buffOutPtr);
+
+	var buffIn = new Uint8Array(ZStd.HEAPU8.buffer, buffInPtr, buffInSize);
+	var buffOut = new Uint8Array(ZStd.HEAPU8.buffer, buffOutPtr, buffOutSize);
+
+	var compressed = [];
+	var compressedByteLength = 0;
+
+	for (var i = 0; i < rawU8.byteLength; i += buffInSize) {
+		var block = rawU8.slice(i, i+buffInSize);
+		buffIn.set(block);
+		var lastBlock = rawU8.byteLength === i + block.byteLength;
+		ZStd._ZStdCompressStreamBlock(block.byteLength, lastBlock ? 1 : 0);
+		while (ZStd._ZStdCompressStreamAtEnd() === 0) {
+			var buffOutPos = ZStd._ZStdCompressStreamContinue();
+			var compressedBlock = new Uint8Array(buffOut.slice(0, buffOutPos));
+			console.log("Got compressed block: %d bytes, data:", buffOutPos, compressedBlock);
+			compressedByteLength += buffOutPos;
+			compressed.push(compressedBlock);
+		}
+	}
+	console.timeEnd("Stream compression");
+	
+	console.log("Compressed size: %d", compressedByteLength);
+
+	compressedU8 = new Uint8Array(ZStd.HEAPU8.buffer, compressedPtr, compressedByteLength);
+	for (var i = 0, offset = 0; i < compressed.length; i++) {
+		compressedU8.set(compressed[i], offset);
+		offset += compressed[i].byteLength;
+	}
+
+	console.time("Decompression");
+	var decompressedPtr = ZStd._malloc(rawSize);
+	var decompressedSize = ZStd._ZStdDecompress(decompressedPtr, rawSize, compressedPtr, compressedByteLength);
+	console.timeEnd("Decompression");
+
+	console.log("Decompressed " + compressedByteLength + " bytes to " + decompressedSize + " bytes.");
+
+	if (decompressedSize !== rawSize) {
+		throw("ERROR: Decompressed size is different from raw size.");
+	}
+
+	var decompressedU8 = new Uint8Array(ZStd.HEAPU8.buffer, decompressedPtr, decompressedSize);
+	console.log("Decompressed data:", decompressedU8);
+
+	for (var i=0; i<decompressedU8.length; i++) {
+		if (decompressedU8[i] !== rawU8[i]) {
+			throw("ERROR: Decompressed value differs from raw at " + i + ", " + decompressedU8[i] + " !== " + rawU8[i]);
+		}
+	}
+
+	console.log("Compression roundtrip completed successfully.")
+
+
+	// Stream decompression
+
+	console.log("%cStreaming decompression", "color: #4A8; font-family:sans-serif; font-size: 20px");
+	console.time("Stream decompression");
+
+	var decompressionBuffersPtr = ZStd._ZStdDecompressStreamStart() / 4;
+	var dbuffInSize = ZStd.HEAPU32[decompressionBuffersPtr];
+	var dbuffInPtr = ZStd.HEAPU32[decompressionBuffersPtr+1];
+	var dbuffOutSize = ZStd.HEAPU32[decompressionBuffersPtr+2];
+	var dbuffOutPtr = ZStd.HEAPU32[decompressionBuffersPtr+3];
+
+	console.log('dbuffInSize: %d dbuffInPtr: %d dbuffOutSize: %d dbuffOutPtr: %d', dbuffInSize, dbuffInPtr, dbuffOutSize, dbuffOutPtr);
+
+	var dbuffIn = new Uint8Array(ZStd.HEAPU8.buffer, dbuffInPtr, dbuffInSize);
+	var dbuffOut = new Uint8Array(ZStd.HEAPU8.buffer, dbuffOutPtr, dbuffOutSize);
+
+	var decompressed = [];
+	var decompressedByteLength = 0;
+
+	for (var i = 0; i < compressedU8.byteLength; i += dbuffInSize) {
+		var block = compressedU8.slice(i, i+dbuffInSize);
+		dbuffIn.set(block);
+		ZStd._ZStdDecompressStreamBlock(block.byteLength);
+		while (ZStd._ZStdDecompressStreamAtEnd() === 0) {
+			var buffOutPos = ZStd._ZStdDecompressStreamContinue();
+			var decompressedBlock = new Uint8Array(dbuffOut.slice(0, buffOutPos));
+			console.log("Got decompressed block: %d bytes, data:", buffOutPos, decompressedBlock);
+			decompressedByteLength += buffOutPos;
+			decompressed.push(decompressedBlock);
+		}
+	}
+	console.timeEnd("Stream decompression");
+	
+	console.log("Decompressed " + compressedU8.byteLength + " bytes to " + decompressedByteLength + " bytes.");
+
+	decompressedU8 = new Uint8Array(ZStd.HEAPU8.buffer, decompressedPtr, decompressedByteLength);
+	for (var i = 0, offset = 0; i < decompressed.length; i++) {
+		decompressedU8.set(decompressed[i], offset);
+		offset += decompressed[i].byteLength;
+	}
+	
+	if (decompressedSize !== rawSize) {
+		throw("ERROR: Decompressed size is different from raw size.");
+	}
+
+	console.log("Decompressed data:", decompressedU8);
+
+	for (var i=0; i<decompressedU8.length; i++) {
+		if (decompressedU8[i] !== rawU8[i]) {
+			throw("ERROR: Decompressed value differs from raw at " + i + ", " + decompressedU8[i] + " !== " + rawU8[i]);
+		}
+	}
+
+	console.log("Compression roundtrip completed successfully.")
+}
+			</script>
+		</pre>
+	</body>
+
+</html>
