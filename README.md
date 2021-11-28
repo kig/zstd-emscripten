@@ -6,7 +6,7 @@ This is a size-optimized build (ZSTD_MINIFY_LIB and ZSTD_NO_INLINE build flags).
 
 Due to the build size optimizations, this build doesn't support dictionary building, legacy and deprecated parts of zstd.
 
-Now tracking upstream as a submodule, rather than as a fork. The previous repo is [archived](https://kig.github.io/zstd-emscripten-archived/).
+Now tracking upstream as a submodule, rather than as a fork. The previous repo is [archived](https://github.com/kig/zstd-emscripten-archived/).
 
 Thanks to Fredrick R. Brennan for their awesome work bringing this repo up-to-date with upstream Zstandard and fixing the CMake build files.
 
