@@ -14,7 +14,7 @@ Thanks to Fredrick R. Brennan for their awesome work bringing this repo up-to-da
 
 ```bash
 git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd .. &&
-git clone https://github.com/kig/zstd-emscripten && cd zstd-emscripten && git submodule update &&
+git clone https://github.com/kig/zstd-emscripten && cd zstd-emscripten && git submodule update --init &&
 mkdir -p build && cd build && emcmake cmake ../cmake/ && emmake make -j4 && cd .. &&
 serve -p 5000
 # open http://localhost:5000/index.html
