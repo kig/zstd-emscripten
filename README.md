@@ -15,9 +15,9 @@ Thanks to Ilmari Heikkinen, @kig, for their initial work on the CMake build.
 ## To build:
 
 ```bash
-git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && source ./emsdk_env.sh && cd .. &&
-git clone https://github.com/kig/zstd-emscripten && cd zstd-emscripten && git submodule --init &&
-cd build && emcmake cmake ../cmake/ && emmake make -j4 && cd .. &&
+git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd .. &&
+git clone https://github.com/kig/zstd-emscripten && cd zstd-emscripten && git submodule update &&
+mkdir -p build && cd build && emcmake cmake ../cmake/ && emmake make -j4 && cd .. &&
 serve -p 5000
 # open http://localhost:5000/index.html
 ```
