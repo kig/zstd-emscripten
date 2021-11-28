@@ -1,4 +1,5 @@
 _ZSTD_versionNumber
+_ZSTD_versionString
 _ZSTD_compress
 _ZSTD_decompress
 _ZSTD_getFrameContentSize
@@ -6,11 +7,14 @@ _ZSTD_getDecompressedSize
 _ZSTD_findFrameCompressedSize
 _ZSTD_compressBound
 _ZSTD_isError
+_ZSTD_getErrorName
 _ZSTD_minCLevel
 _ZSTD_maxCLevel
 _ZSTD_defaultCLevel
+_ZSTD_createCCtx
 _ZSTD_freeCCtx
 _ZSTD_compressCCtx
+_ZSTD_createDCtx
 _ZSTD_freeDCtx
 _ZSTD_decompressDCtx
 _ZSTD_cParam_getBounds
@@ -21,6 +25,7 @@ _ZSTD_compress2
 _ZSTD_dParam_getBounds
 _ZSTD_DCtx_setParameter
 _ZSTD_DCtx_reset
+_ZSTD_createCStream
 _ZSTD_freeCStream
 _ZSTD_compressStream2
 _ZSTD_CStreamInSize
@@ -29,6 +34,7 @@ _ZSTD_initCStream
 _ZSTD_compressStream
 _ZSTD_flushStream
 _ZSTD_endStream
+_ZSTD_createDStream
 _ZSTD_freeDStream
 _ZSTD_initDStream
 _ZSTD_decompressStream
@@ -36,8 +42,10 @@ _ZSTD_DStreamInSize
 _ZSTD_DStreamOutSize
 _ZSTD_compress_usingDict
 _ZSTD_decompress_usingDict
+_ZSTD_createCDict
 _ZSTD_freeCDict
 _ZSTD_compress_usingCDict
+_ZSTD_createDDict
 _ZSTD_freeDDict
 _ZSTD_decompress_usingDDict
 _ZSTD_getDictID_fromDict
@@ -77,6 +85,22 @@ _ZSTD_estimateDStreamSize_fromFrame
 _ZSTD_estimateCDictSize
 _ZSTD_estimateCDictSize_advanced
 _ZSTD_estimateDDictSize
+_ZSTD_initStaticCCtx
+_ZSTD_initStaticCStream
+_ZSTD_initStaticCCtx
+_ZSTD_initStaticDCtx
+_ZSTD_initStaticDStream
+_ZSTD_initStaticDCtx
+_ZSTD_initStaticCDict
+_ZSTD_initStaticDDict
+_ZSTD_createCCtx_advanced
+_ZSTD_createCStream_advanced
+_ZSTD_createDCtx_advanced
+_ZSTD_createDStream_advanced
+_ZSTD_createCDict_advanced
+_ZSTD_createCDict_advanced2
+_ZSTD_createDDict_advanced
+_ZSTD_createCDict_byReference
 _ZSTD_getCParams
 _ZSTD_getParams
 _ZSTD_checkCParams
@@ -85,6 +109,7 @@ _ZSTD_CCtx_loadDictionary_byReference
 _ZSTD_CCtx_loadDictionary_advanced
 _ZSTD_CCtx_refPrefix_advanced
 _ZSTD_CCtx_getParameter
+_ZSTD_createCCtxParams
 _ZSTD_freeCCtxParams
 _ZSTD_CCtxParams_reset
 _ZSTD_CCtxParams_init
@@ -94,6 +119,7 @@ _ZSTD_CCtxParams_getParameter
 _ZSTD_CCtx_setParametersUsingCCtxParams
 _ZSTD_compressStream2_simpleArgs
 _ZSTD_isFrame
+_ZSTD_createDDict_byReference
 _ZSTD_DCtx_loadDictionary_byReference
 _ZSTD_DCtx_loadDictionary_advanced
 _ZSTD_DCtx_refPrefix_advanced

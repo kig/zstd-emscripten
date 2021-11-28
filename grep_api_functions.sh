@@ -1,1 +1,1 @@
-egrep -o '^ZSTDLIB_API [a-zA-Z0-9_ ]* (ZSTD[^ \(]* *\()' zstd/lib/zstd.h | egrep -o '(ZSTD[^ \(]* *\()' | egrep -o 'ZSTD[^ \(]*'
+egrep -o '^ZSTDLIB_API .* (ZSTD[^ \(]* *\()' zstd/lib/zstd.h | egrep -o '(ZSTD[^ \(]* *\()' | egrep -o 'ZSTD[^ \(]*' | grep -iv thread | sed -e 's/^/_/g'
