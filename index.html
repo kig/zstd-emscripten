@@ -108,7 +108,7 @@ function testZStd(ZStd) {
 				buffIn.byteOffset, block.byteLength, buffInPos.byteOffset,
 				lastBlock ? 2 : 0
 			);
-			var compressedBlock = new Uint8Array(buffOut.slice(0, buffOutPos[0]));
+			var compressedBlock = buffOut.slice(0, buffOutPos[0]);
 			console.log("Got compressed block: %d bytes, data:", buffOutPos[0], compressedBlock);
 			compressedByteLength += buffOutPos[0];
 			compressed.push(compressedBlock);
@@ -168,7 +168,7 @@ function testZStd(ZStd) {
 				buffOut.byteOffset, buffOut.byteLength, buffOutPos.byteOffset,
 				buffIn.byteOffset, block.byteLength, buffInPos.byteOffset
 			);
-			var decompressedBlock = new Uint8Array(buffOut.slice(0, buffOutPos[0]));
+			var decompressedBlock = buffOut.slice(0, buffOutPos[0]);
 			console.log("Got decompressed block: %d bytes, data:", buffOutPos[0], decompressedBlock);
 			decompressedByteLength += buffOutPos[0];
 			decompressed.push(decompressedBlock);
