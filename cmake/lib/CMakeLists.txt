@@ -72,6 +72,8 @@ ${LIBRARY_DIR}/common/xxhash.c
 ${LIBRARY_DIR}/common/zstd_common.c
 ${LIBRARY_DIR}/compress/fse_compress.c
 ${LIBRARY_DIR}/compress/hist.c
+)
+SET(CompressSources
 ${LIBRARY_DIR}/compress/huf_compress.c
 ${LIBRARY_DIR}/compress/zstd_compress.c
 ${LIBRARY_DIR}/compress/zstd_compress_literals.c
@@ -83,10 +85,23 @@ ${LIBRARY_DIR}/compress/zstd_lazy.c
 ${LIBRARY_DIR}/compress/zstd_ldm.c
 ${LIBRARY_DIR}/compress/zstd_opt.c
 ${LIBRARY_DIR}/compress/zstdmt_compress.c
+)
+SET(DecompressSources
 ${LIBRARY_DIR}/decompress/huf_decompress.c
 ${LIBRARY_DIR}/decompress/zstd_ddict.c
 ${LIBRARY_DIR}/decompress/zstd_decompress.c
 ${LIBRARY_DIR}/decompress/zstd_decompress_block.c
+)
+SET(DictBuilderSources
+${LIBRARY_DIR}/dictBuilder/cover.c
+${LIBRARY_DIR}/dictBuilder/divsufsort.c
+${LIBRARY_DIR}/dictBuilder/fastcover.c
+${LIBRARY_DIR}/dictBuilder/zdict.c
+)
+SET(LegacySources
+${LIBRARY_DIR}/deprecated/zbuff_common.c
+${LIBRARY_DIR}/deprecated/zbuff_decompress.c
+${LIBRARY_DIR}/deprecated/zbuff_compress.c
 )
 
 SET(Headers
@@ -104,6 +119,11 @@ ${LIBRARY_DIR}/common/xxhash.h
 ${LIBRARY_DIR}/common/zstd_deps.h
 ${LIBRARY_DIR}/common/zstd_internal.h
 ${LIBRARY_DIR}/common/zstd_trace.h
+${LIBRARY_DIR}/zdict.h
+${LIBRARY_DIR}/zstd_errors.h
+${LIBRARY_DIR}/zstd.h
+)
+SET(CompressHeaders
 ${LIBRARY_DIR}/compress/clevels.h
 ${LIBRARY_DIR}/compress/hist.h
 ${LIBRARY_DIR}/compress/zstd_compress_internal.h
@@ -118,12 +138,27 @@ ${LIBRARY_DIR}/compress/zstd_ldm.h
 ${LIBRARY_DIR}/compress/zstd_ldm_geartab.h
 ${LIBRARY_DIR}/compress/zstd_opt.h
 ${LIBRARY_DIR}/compress/zstdmt_compress.h
+)
+SET(DecompressHeaders
 ${LIBRARY_DIR}/decompress/zstd_ddict.h
 ${LIBRARY_DIR}/decompress/zstd_decompress_block.h
 ${LIBRARY_DIR}/decompress/zstd_decompress_internal.h
-${LIBRARY_DIR}/zdict.h
-${LIBRARY_DIR}/zstd_errors.h
-${LIBRARY_DIR}/zstd.h)
+)
+SET(DictBuilderHeaders
+${LIBRARY_DIR}/dictBuilder/cover.h
+${LIBRARY_DIR}/dictBuilder/divsufsort.h
+)
+SET(LegacyHeaders
+${LIBRARY_DIR}/legacy/zstd_v03.h
+${LIBRARY_DIR}/legacy/zstd_v07.h
+${LIBRARY_DIR}/legacy/zstd_v04.h
+${LIBRARY_DIR}/legacy/zstd_v01.h
+${LIBRARY_DIR}/legacy/zstd_v05.h
+${LIBRARY_DIR}/legacy/zstd_v02.h
+${LIBRARY_DIR}/legacy/zstd_legacy.h
+${LIBRARY_DIR}/legacy/zstd_v06.h
+${LIBRARY_DIR}/deprecated/zbuff.h
+)
 
 IF (MSVC)
     SET(MSVC_RESOURCE_DIR ${ROOT_DIR}/visual/2013/zstdlib)
@@ -131,16 +166,25 @@ IF (MSVC)
 ENDIF (MSVC)
 
 # Split project to static and shared libraries build
-ADD_LIBRARY(libzstd_static STATIC ${Sources} ${Headers} ${PlatformDependResources})
+ADD_LIBRARY(libzstd_static STATIC ${Sources} ${CompressSources} ${DecompressSources} ${DictBuilderSources} ${LegacySources} ${Headers} ${CompressHeaders} ${DecompressHeaders} ${DictBuilderHeaders} ${LegacyHeaders} ${PlatformDependResources})
+ADD_LIBRARY(libzstd_compress_static STATIC ${Sources} ${CompressSources} ${Headers} ${CompressHeaders} ${PlatformDependResources})
+ADD_LIBRARY(libzstd_decompress_static STATIC ${Sources} ${DecompressSources} ${Headers} ${DecompressHeaders} ${PlatformDependResources})
+ADD_LIBRARY(libzstd_min_static STATIC ${Sources} ${CompressSources} ${DecompressSources} ${Headers} ${CompressHeaders} ${DecompressHeaders} ${PlatformDependResources})
 
 # Add specific compile definitions for MSVC project
 IF (MSVC)
     SET_TARGET_PROPERTIES(libzstd_static PROPERTIES COMPILE_DEFINITIONS "ZSTD_HEAPMODE=0;_CRT_SECURE_NO_WARNINGS")
+    SET_TARGET_PROPERTIES(libzstd_compress_static PROPERTIES COMPILE_DEFINITIONS "ZSTD_HEAPMODE=0;_CRT_SECURE_NO_WARNINGS")
+    SET_TARGET_PROPERTIES(libzstd_decompress_static PROPERTIES COMPILE_DEFINITIONS "ZSTD_HEAPMODE=0;_CRT_SECURE_NO_WARNINGS")
+    SET_TARGET_PROPERTIES(libzstd_min_static PROPERTIES COMPILE_DEFINITIONS "ZSTD_HEAPMODE=0;_CRT_SECURE_NO_WARNINGS")
 ENDIF (MSVC)
 
 # Define include directories
 IF (NOT WORKAROUND_OUTDATED_CODE_STYLE)
     TARGET_INCLUDE_DIRECTORIES(libzstd_static PUBLIC ${LIBRARY_DIR})
+    TARGET_INCLUDE_DIRECTORIES(libzstd_compress_static PUBLIC ${LIBRARY_DIR})
+    TARGET_INCLUDE_DIRECTORIES(libzstd_decompress_static PUBLIC ${LIBRARY_DIR})
+    TARGET_INCLUDE_DIRECTORIES(libzstd_min_static PUBLIC ${LIBRARY_DIR})
 ENDIF (NOT WORKAROUND_OUTDATED_CODE_STYLE)
 
 # Define library base name
@@ -168,6 +212,24 @@ SET_TARGET_PROPERTIES(
         PROPERTIES
         PREFIX ""
         OUTPUT_NAME ${STATIC_LIBRARY_OUTPUT_NAME})
+
+SET_TARGET_PROPERTIES(
+        libzstd_compress_static
+        PROPERTIES
+        PREFIX ""
+        OUTPUT_NAME ${STATIC_LIBRARY_OUTPUT_NAME}_compress)
+
+SET_TARGET_PROPERTIES(
+        libzstd_decompress_static
+        PROPERTIES
+        PREFIX ""
+        OUTPUT_NAME ${STATIC_LIBRARY_OUTPUT_NAME}_decompress)
+
+SET_TARGET_PROPERTIES(
+        libzstd_min_static
+        PROPERTIES
+        PREFIX ""
+        OUTPUT_NAME ${STATIC_LIBRARY_OUTPUT_NAME}_min)
 
 IF (UNIX)
     SET(PREFIX /usr/local)

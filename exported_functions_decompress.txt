@@ -1,0 +1,6 @@
+_ZSTD_createDStream
+_ZSTD_freeDStream
+_ZSTD_initDStream
+_ZSTD_DStreamInSize
+_ZSTD_DStreamOutSize
+_ZSTD_decompressStream_simpleArgs
