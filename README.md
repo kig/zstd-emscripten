@@ -1,4 +1,4 @@
-# Zstd Emscripten build
+# Zstd WebAssembly build
 
 This build is based on [facebook/zstd](https://github.com/facebook/zstd) and provides a thin WebAssembly wrapper around the zstd.h API. Please see [index.html](https://kig.github.io/zstd-emscripten/) for a demo and usage example.
 
