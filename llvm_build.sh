@@ -7,7 +7,7 @@ mkdir -p lib && cd lib &&
 
 for f in ../../zstd/lib/**/*.c
 do
-	clang -DZSTD_MINIFY_LIB=1 -DZSTD_NO_INLINE=1 -c --target=wasm32 -nostdlib -I sysroot/include -I../../zstd/lib -o `basename $f`.o $f &
+	clang -DZSTD_MINIFY_LIB=1 -DZSTD_NO_INLINE=1 -c --target=wasm32 -nostdlib -I../../wasi-include -I../../zstd/lib -o `basename $f`.o $f &
 done
 wait
 
