@@ -2,7 +2,7 @@
 
 This build is based on [facebook/zstd](https://github.com/facebook/zstd) and provides a thin WebAssembly wrapper around the zstd.h API. Please see [index.html](https://kig.github.io/zstd-emscripten/) for a demo and usage example.
 
-This is a size-optimized build (ZSTD_MINIFY_LIB and ZSTD_NO_INLINE build flags). The build output is four versions of the binding: full, compress-only, decompress-only. The brotli-compressed size of the wasm varies from 20 kB decompress-only to 70 kB full binding. There's no need for a separate JS file to use the WebAssembly library, so you save 10 kB on that.
+This is a size-optimized build (ZSTD_MINIFY_LIB and ZSTD_NO_INLINE build flags). The build output is three versions of the binding: full, compress-only, decompress-only. The brotli-compressed size of the wasm varies from 20 kB decompress-only to 70 kB full binding. There's no need for a separate JS file to use the WebAssembly library, so you save 10 kB on that.
 
 This repo tracks the upstream as a submodule. 
 
