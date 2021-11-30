@@ -6,19 +6,39 @@ extern "C" {
 
 extern unsigned char __heap_base;
 
-unsigned int bump_pointer = &__heap_base;
+unsigned long bump_pointer = (unsigned long)(&__heap_base);
 
-char* malloc(unsigned int n) {
-  unsigned int r = bump_pointer;
-  bump_pointer += n;
-  return (char *)r;
+void* malloc(unsigned long n) {
+  unsigned long r = bump_pointer;
+  bump_pointer = (bump_pointer + n + 15) & 0xfffffff0; // align on 16 bytes
+  return (void *)r;
 }
 
 void free(void* p) {
-  // lol
 }
 
-char *calloc(int nmemb, int size) {
+void *memset(void *dst, int c, unsigned long n) {
+	char *dstc = (char*)dst, cc = (char)c;
+	while (n--) *dstc++ = cc;
+	return dst - n;
+}
+
+void *memcpy(void *dst, const void *src, unsigned long n) {
+	char *dstc = (char*)dst, *srcc = (char*)src;
+	while (n--) *dstc++ = *srcc++;
+	return dst - n;
+}
+
+void *memmove(void *dst, const void *src, unsigned long n) {
+	if (dst > src) return memcpy(dst, src, n);
+	char *dstc = (char*)dst, *srcc = (char*)src;
+	dstc += n;
+	srcc += n;
+	while (n--) *--dstc = *--srcc;
+	return dst+1;
+}
+
+void *calloc(unsigned long nmemb, unsigned long size) {
 	if (nmemb * size < 0) return (void *)-1;
 	void *p = malloc(nmemb * size);
 	memset(p, 0, nmemb * size);
@@ -29,23 +49,6 @@ void setHeapPtr(unsigned int n) {
 	bump_pointer = n;
 }
 
-char *memset(char *dst, int c, int n) {
-	while (n--) *dst++ = c;
-	return dst-n;
-}
-
-char *memcpy(char *dst, char *src, int n) {
-	while (n--) *dst++ = *src++;
-	return dst-n;
-}
-
-char *memmove(char *dst, char *src, int n) {
-	if (dst > src) return memcpy(dst, src, n);
-	dst += n;
-	src += n;
-	while (n--) *--dst = *--src;
-	return dst+1;
-}
 
 #if defined (__cplusplus)
 }
