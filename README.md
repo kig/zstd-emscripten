@@ -37,7 +37,7 @@ See the [test page](index.html) for examples on using the simple API and the str
 
 Zstd-emscripten is a 1:1 binding to the ZSTD API in [zstd.h](https://github.com/facebook/zstd/blob/dev/lib/zstd.h), please refer to the [ZSTD docs](http://facebook.github.io/zstd/zstd_manual.html) for further details.
 
-The compress-only and decompress-only versions of the library bind just a few functions, see [exported_functions_compress.txt](exported_functions_compress.txt) and [exported_functions_decompress.txt](exported_functions_decompress.txt) for the exported function lists. The full version function list is in [exported_functions.txt](exported_functions.txt).
+The compress-only and decompress-only versions of the library bind just a few functions, see [exported_functions_compress.exp](exported_functions_compress.exp) and [exported_functions_decompress.exp](exported_functions_decompress.exp) for the exported function lists. The full version function list is in [exported_functions.exp](exported_functions.exp).
 
 ## License
 
