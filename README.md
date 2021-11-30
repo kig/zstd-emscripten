@@ -12,8 +12,6 @@ Thanks to Fredrick R. Brennan for their awesome work bringing the forked repo up
 
 ## Build
 
-Skip the first line if you already have Emscripten set up.
-
 ```bash
 # Install LLVM 13 and wasm-opt
 brew install llvm && export PATH=/usr/local/opt/llvm/bin &&
