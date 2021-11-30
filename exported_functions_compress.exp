@@ -1,0 +1,6 @@
+ZSTD_createCStream
+ZSTD_freeCStream
+ZSTD_CStreamInSize
+ZSTD_CStreamOutSize
+ZSTD_initCStream
+ZSTD_compressStream2_simpleArgs
