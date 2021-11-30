@@ -14,7 +14,7 @@ Thanks to Fredrick R. Brennan for their awesome work bringing the forked repo up
 
 ```bash
 # Install LLVM 13 and wasm-opt
-brew install llvm && export PATH=/usr/local/opt/llvm/bin &&
+brew install llvm && export PATH=/usr/local/opt/llvm/bin:$PATH &&
 brew install binaryen &&
 
 # Install zstd-emscripten repo and zstd upstream.
