@@ -2,7 +2,7 @@
 
 This build is based on [facebook/zstd](https://github.com/facebook/zstd) and provides a thin WebAssembly wrapper around the zstd.h API. Please see [index.html](https://kig.github.io/zstd-emscripten/) for a demo and usage example.
 
-This is a size-optimized build (ZSTD_MINIFY_LIB and ZSTD_NO_INLINE build flags). The build output is four versions of the binding: full, compress-only, decompress-only, and compress+decompress-only. The brotli-compressed size of the wasm varies from 23 kB decompress-only to 76kB full binding.
+This is a size-optimized build (ZSTD_MINIFY_LIB and ZSTD_NO_INLINE build flags). The build output is four versions of the binding: full, compress-only, decompress-only. The brotli-compressed size of the wasm varies from 20 kB decompress-only to 70 kB full binding. There's no need for a separate JS file to use the WebAssembly library, so you save 10 kB on that.
 
 This repo tracks the upstream as a submodule. 
 
@@ -15,9 +15,20 @@ Thanks to Fredrick R. Brennan for their awesome work bringing the forked repo up
 Skip the first line if you already have Emscripten set up.
 
 ```bash
-git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd .. &&
-git clone https://github.com/kig/zstd-emscripten && cd zstd-emscripten && git submodule update --init &&
-mkdir -p build && cd build && emcmake cmake ../cmake/ && emmake make -j4 && cd .. &&
+# Install LLVM 13 and wasm-opt
+brew install llvm && export PATH=/usr/local/opt/llvm/bin &&
+brew install binaryen &&
+
+# Install zstd-emscripten repo and zstd upstream.
+git clone https://github.com/kig/zstd-emscripten && cd zstd-emscripten && git checkout llvm-build && git submodule update --init &&
+
+# Build
+./llvm_build.sh &&
+
+# List the built wasm files.
+ls -l build/*.wasm &&
+
+# Run a web server to check the test page.
 serve -p 5000
 # open http://localhost:5000/index.html
 ```
