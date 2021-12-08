@@ -1,0 +1,23 @@
+name: LLVM Build
+
+on:
+  push:
+    branches: [ llvm-build ]
+  pull_request:
+    branches: [ llvm-build ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: llvm-build
+      run: ./llvm-build.sh
+    - name: brotli
+      run: brotli -f build/*.wasm
+    - name: gzip
+      run: gzip -9 -k -f build/*.wasm
