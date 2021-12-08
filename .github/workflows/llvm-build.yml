@@ -18,8 +18,8 @@ jobs:
       with:
         ref: llvm-build
         submodules: true
-    - name: llvm-build
-      run: ./llvm-build.sh
+    - name: llvm_build
+      run: ./llvm_build.sh
     - name: brotli
       run: brotli -f build/*.wasm
     - name: gzip
